@@ -132,39 +132,29 @@ class sfThumbnail
   private $imgData;
 
   /**
-   * JPEG output quality
-   * @access private
-   * @var int
-   */
-  private $quality;
-
-  /**
   * Thumbnail constructor
-  * @param int (optional) max width of thumbnail
-  * @param int (optional) max height of thumbnail
+  * @param int max width of thumbnail
+  * @param int max height of thumbnail
   * @param boolean (optional) if true image scales
   * @param boolean (optional) if true inflate small images
   * @access public
   */
-  public function __construct($maxWidth = null, $maxHeight = null, $scale = true, $inflate = true, $quality = 75)
+  public function __construct($maxWidth, $maxHeight, $scale=true,$inflate=true )  
   {
-    $this->maxWidth  = $maxWidth;
-    $this->maxHeight = $maxHeight;
-    $this->scale     = $scale;
-    $this->inflate   = $inflate;
-    $this->quality   = $quality;
+    $this->maxWidth=$maxWidth;
+    $this->maxHeight=$maxHeight;
+    $this->scale=$scale;
+    $this->inflate=$inflate;
 
-    $this->imgTypes = array('image/jpeg', 'image/png', 'image/gif');
+    $this->imgTypes =array('image/jpeg','image/png');
     $this->imgLoaders = array(
-      'image/jpeg' => 'imagecreatefromjpeg',
-      'image/png'  => 'imagecreatefrompng',
-      'image/gif'  => 'imagecreatefromgif',
+        'image/jpeg'=>'imagecreatefromjpeg',
+        'image/png'=>'imagecreatefrompng'
     );
 
     $this->imgCreators = array(
-      'image/jpeg' => 'imagejpeg',
-      'image/png'  => 'imagepng',
-      'image/gif'  => 'imagegif',
+        'image/jpeg'=>'imagejpeg',
+        'image/png'=>'imagepng'
     );
   }
 
@@ -179,22 +169,21 @@ class sfThumbnail
   {
     $imgData = @GetImageSize($image);
 
-    if (!$imgData)
-    {
+    if( !$imgData ) {
       throw new Exception("Could not load image $image");
     }
 
-    if (in_array($imgData['mime'], $this->imgTypes))
+    if( in_array($imgData['mime'], $this->imgTypes) ) 
     {
       $loader = $this->imgLoaders[$imgData['mime']];
       $this->source = $loader($image);
-      $this->sourceWidth = $imgData[0];
-      $this->sourceHeight = $imgData[1];
-      $this->sourceMime = $imgData['mime'];
+            $this->sourceWidth = $imgData[0];
+            $this->sourceHeight = $imgData[1];
+            $this->sourceMime = $imgData['mime'];
       $this->imgData = $imgData;
-      $this->initThumb();
+            $this->initThumb();
 
-      return true;
+            return true;
     }
     else
     {
@@ -210,20 +199,15 @@ class sfThumbnail
   * @access public
   * @throws Exception
   */
-  function loadData ($image, $mime)
-  {
-    if (in_array($mime,$this->imgTypes))
-    {
+  function loadData ($image,$mime) {
+    if ( in_array($mime,$this->imgTypes) ) {
       $this->source=imagecreatefromstring($image);
       $this->sourceWidth=imagesx($this->source);
       $this->sourceHeight=imagesy($this->source);
       $this->sourceMime=$mime;
       $this->initThumb();
-
       return true;
-    }
-    else
-    {
+    } else {
       throw new Exception('Image MIME type '.$mime.' not supported');
     }
   }
@@ -233,28 +217,23 @@ class sfThumbnail
   * @return string
   * @access public
   */
-  function getMime()
-  {
+  function getMime () {
     return $this->sourceMime;
   }
-
   /**
   * Returns the width of the thumbnail
   * @return int
   * @access public
   */
-  function getThumbWidth()
-  {
+  function getThumbWidth() {
     return $this->thumbWidth;
   }
-
   /**
   * Returns the height of the thumbnail
   * @return int
   * @access public
   */
-  function getThumbHeight()
-  {
+  function getThumbHeight() {
     return $this->thumbHeight;
   }
 
@@ -265,56 +244,37 @@ class sfThumbnail
   */
   private function initThumb()
   {
-    if ($this->maxWidth > 0)
-    {
-      $ratioWidth = $this->maxWidth / $this->sourceWidth;
-    }
-    if ($this->maxHeight > 0)
-    {
-      $ratioHeight = $this->maxHeight / $this->sourceHeight;
-    }
-
-    if ($this->scale)
-    {
-      if ($this->maxWidth && $this->maxHeight)
-      {
-        $ratio = ($ratioWidth < $ratioHeight) ? $ratioWidth : $ratioHeight;
+    if ( $this->scale ) {
+      if ( $this->sourceWidth > $this->sourceHeight ) {
+        $this->thumbWidth=$this->maxWidth;
+        $this->thumbHeight=floor(
+          $this->sourceHeight*($this->maxWidth/$this->sourceWidth)
+            );
+      } else if ( $this->sourceWidth < $this->sourceHeight ) {
+        $this->thumbHeight=$this->maxHeight;
+        $this->thumbWidth=floor(
+          $this->sourceWidth*($this->maxHeight/$this->sourceHeight)
+            );
+      } else {
+        $this->thumbWidth=$this->maxWidth;
+        $this->thumbHeight=$this->maxHeight;
       }
-      if ($this->maxWidth xor $this->maxHeight)
-      {
-        $ratio = (isset($ratioWidth)) ? $ratioWidth : $ratioHeight;
-      }
-      if ((!$this->maxWidth && !$this->maxHeight) || (!$this->inflate && $ratio > 1))
-      {
-        $ratio = 1;
-      }
-
-      $this->thumbWidth = floor($ratio * $this->sourceWidth);
-      $this->thumbHeight = floor($ratio * $this->sourceHeight);
-    }
-    else
-    {
-      if (!$ratioWidth || (!$this->inflate && $ratioWidth > 1))
-      {
-        $ratioWidth = 1;
-      }
-      if (!$ratioHeight || (!$this->inflate && $ratioHeight > 1))
-      {
-        $ratioHeight = 1;
-      }
-      $this->thumbWidth = floor($ratioWidth * $this->sourceWidth);
-      $this->thumbHeight = floor($ratioHeight * $this->sourceHeight);
+    } else {
+      $this->thumbWidth=$this->maxWidth;
+      $this->thumbHeight=$this->maxHeight;
     }
 
-    $this->thumb = imagecreatetruecolor($this->thumbWidth, $this->thumbHeight);
+    $this->thumb = imagecreatetruecolor($this->thumbWidth, 
+                $this->thumbHeight);
 
-    if ($this->sourceWidth == $this->maxWidth && $this->sourceHeight == $this->maxHeight)
-    {
+    if ( $this->sourceWidth <= $this->maxWidth &&
+        $this->sourceHeight <= $this->maxHeight &&
+          $this->inflate == false ) {
       $this->thumb= $this->source;
-    }
-    else
-    {
-      imagecopyresampled( $this->thumb, $this->source, 0, 0, 0, 0, $this->thumbWidth, $this->thumbHeight, $this->sourceWidth, $this->sourceHeight);
+    } else {
+      imagecopyresampled( $this->thumb, $this->source, 0, 0, 0, 0,
+               $this->thumbWidth, $this->thumbHeight,
+               $this->sourceWidth, $this->sourceHeight );
     }
   }
 
@@ -323,43 +283,11 @@ class sfThumbnail
   * @access public 
   * @return void
   */
-  public function save($thumbDest, $creatorName = null)
+  public function save($thumbDest)
   {
-    $creator = $creatorName !== null ? $this->imgCreators[$creatorName] : $this->imgCreators[$this->imgData['mime']];
-    if ($creator == 'imagejpeg')
-    {
-      imagejpeg($this->thumb, $thumbDest, $this->quality);
-    }
-    else
-    {
-      $creator($this->thumb, $thumbDest);
-    }
-  }
-
-  public function freeSource()
-  {
-    if (is_resource($this->source))
-    {
-      imagedestroy($this->source);
-    }
-  }
-
-  public function freeThumb()
-  {
-    if (is_resource($this->thumb))
-    {
-      imagedestroy($this->thumb);
-    }
-  }
-
-  public function freeAll()
-  {
-    $this->freeSource();
-    $this->freeThumb();
-  }
-
-  public function __destruct()
-  {
-    $this->freeAll();
+    $creator = $this->imgCreators[$this->imgData['mime']];
+    $creator($this->thumb, $thumbDest);
   }
 }
+
+?>
