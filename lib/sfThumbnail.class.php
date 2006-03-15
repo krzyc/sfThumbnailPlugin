@@ -139,22 +139,22 @@ class sfThumbnail
   * @param boolean (optional) if true inflate small images
   * @access public
   */
-  public function __construct($maxWidth, $maxHeight, $scale=true,$inflate=true )  
+  public function __construct($maxWidth, $maxHeight, $scale = true, $inflate = true)
   {
-    $this->maxWidth=$maxWidth;
-    $this->maxHeight=$maxHeight;
-    $this->scale=$scale;
-    $this->inflate=$inflate;
+    $this->maxWidth  = $maxWidth;
+    $this->maxHeight = $maxHeight;
+    $this->scale     = $scale;
+    $this->inflate   = $inflate;
 
-    $this->imgTypes =array('image/jpeg','image/png');
+    $this->imgTypes = array('image/jpeg','image/png');
     $this->imgLoaders = array(
-        'image/jpeg'=>'imagecreatefromjpeg',
-        'image/png'=>'imagecreatefrompng'
+      'image/jpeg' => 'imagecreatefromjpeg',
+      'image/png'  => 'imagecreatefrompng',
     );
 
     $this->imgCreators = array(
-        'image/jpeg'=>'imagejpeg',
-        'image/png'=>'imagepng'
+      'image/jpeg' => 'imagejpeg',
+      'image/png'  => 'imagepng',
     );
   }
 
@@ -169,21 +169,22 @@ class sfThumbnail
   {
     $imgData = @GetImageSize($image);
 
-    if( !$imgData ) {
+    if (!$imgData)
+    {
       throw new Exception("Could not load image $image");
     }
 
-    if( in_array($imgData['mime'], $this->imgTypes) ) 
+    if (in_array($imgData['mime'], $this->imgTypes))
     {
       $loader = $this->imgLoaders[$imgData['mime']];
       $this->source = $loader($image);
-            $this->sourceWidth = $imgData[0];
-            $this->sourceHeight = $imgData[1];
-            $this->sourceMime = $imgData['mime'];
+      $this->sourceWidth = $imgData[0];
+      $this->sourceHeight = $imgData[1];
+      $this->sourceMime = $imgData['mime'];
       $this->imgData = $imgData;
-            $this->initThumb();
+      $this->initThumb();
 
-            return true;
+      return true;
     }
     else
     {
@@ -199,15 +200,20 @@ class sfThumbnail
   * @access public
   * @throws Exception
   */
-  function loadData ($image,$mime) {
-    if ( in_array($mime,$this->imgTypes) ) {
+  function loadData ($image, $mime)
+  {
+    if (in_array($mime,$this->imgTypes))
+    {
       $this->source=imagecreatefromstring($image);
       $this->sourceWidth=imagesx($this->source);
       $this->sourceHeight=imagesy($this->source);
       $this->sourceMime=$mime;
       $this->initThumb();
+
       return true;
-    } else {
+    }
+    else
+    {
       throw new Exception('Image MIME type '.$mime.' not supported');
     }
   }
@@ -217,23 +223,28 @@ class sfThumbnail
   * @return string
   * @access public
   */
-  function getMime () {
+  function getMime()
+  {
     return $this->sourceMime;
   }
+
   /**
   * Returns the width of the thumbnail
   * @return int
   * @access public
   */
-  function getThumbWidth() {
+  function getThumbWidth()
+  {
     return $this->thumbWidth;
   }
+
   /**
   * Returns the height of the thumbnail
   * @return int
   * @access public
   */
-  function getThumbHeight() {
+  function getThumbHeight()
+  {
     return $this->thumbHeight;
   }
 
@@ -244,37 +255,39 @@ class sfThumbnail
   */
   private function initThumb()
   {
-    if ( $this->scale ) {
-      if ( $this->sourceWidth > $this->sourceHeight ) {
+    if ($this->scale)
+    {
+      if ($this->sourceWidth > $this->sourceHeight)
+      {
         $this->thumbWidth=$this->maxWidth;
-        $this->thumbHeight=floor(
-          $this->sourceHeight*($this->maxWidth/$this->sourceWidth)
-            );
-      } else if ( $this->sourceWidth < $this->sourceHeight ) {
+        $this->thumbHeight=floor($this->sourceHeight*($this->maxWidth/$this->sourceWidth));
+      }
+      else if ($this->sourceWidth < $this->sourceHeight)
+      {
         $this->thumbHeight=$this->maxHeight;
-        $this->thumbWidth=floor(
-          $this->sourceWidth*($this->maxHeight/$this->sourceHeight)
-            );
-      } else {
+        $this->thumbWidth=floor($this->sourceWidth*($this->maxHeight/$this->sourceHeight));
+      }
+      else
+      {
         $this->thumbWidth=$this->maxWidth;
         $this->thumbHeight=$this->maxHeight;
       }
-    } else {
+    }
+    else
+    {
       $this->thumbWidth=$this->maxWidth;
       $this->thumbHeight=$this->maxHeight;
     }
 
-    $this->thumb = imagecreatetruecolor($this->thumbWidth, 
-                $this->thumbHeight);
+    $this->thumb = imagecreatetruecolor($this->thumbWidth, $this->thumbHeight);
 
-    if ( $this->sourceWidth <= $this->maxWidth &&
-        $this->sourceHeight <= $this->maxHeight &&
-          $this->inflate == false ) {
+    if ($this->sourceWidth <= $this->maxWidth && $this->sourceHeight <= $this->maxHeight && $this->inflate == false)
+    {
       $this->thumb= $this->source;
-    } else {
-      imagecopyresampled( $this->thumb, $this->source, 0, 0, 0, 0,
-               $this->thumbWidth, $this->thumbHeight,
-               $this->sourceWidth, $this->sourceHeight );
+    }
+    else
+    {
+      imagecopyresampled( $this->thumb, $this->source, 0, 0, 0, 0, $this->thumbWidth, $this->thumbHeight, $this->sourceWidth, $this->sourceHeight);
     }
   }
 
@@ -283,9 +296,9 @@ class sfThumbnail
   * @access public 
   * @return void
   */
-  public function save($thumbDest)
+  public function save($thumbDest, $creatorName = null)
   {
-    $creator = $this->imgCreators[$this->imgData['mime']];
+    $creator = $creatorName !== null ? $this->imgCreators[$creatorName] : $this->imgCreators[$this->imgData['mime']];
     $creator($this->thumb, $thumbDest);
   }
 }
