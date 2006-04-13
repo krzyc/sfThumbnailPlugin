@@ -146,15 +146,17 @@ class sfThumbnail
     $this->scale     = $scale;
     $this->inflate   = $inflate;
 
-    $this->imgTypes = array('image/jpeg','image/png');
+    $this->imgTypes = array('image/jpeg', 'image/png', 'image/gif');
     $this->imgLoaders = array(
       'image/jpeg' => 'imagecreatefromjpeg',
       'image/png'  => 'imagecreatefrompng',
+      'image/gif'  => 'imagecreatefromgif',
     );
 
     $this->imgCreators = array(
       'image/jpeg' => 'imagejpeg',
       'image/png'  => 'imagepng',
+      'image/gif'  => 'imagegif',
     );
   }
 
