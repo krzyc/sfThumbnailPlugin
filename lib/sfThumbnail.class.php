@@ -133,13 +133,13 @@ class sfThumbnail
 
   /**
   * Thumbnail constructor
-  * @param int max width of thumbnail
-  * @param int max height of thumbnail
+  * @param int (optional) max width of thumbnail
+  * @param int (optional) max height of thumbnail
   * @param boolean (optional) if true image scales
   * @param boolean (optional) if true inflate small images
   * @access public
   */
-  public function __construct($maxWidth, $maxHeight, $scale = true, $inflate = true)
+  public function __construct($maxWidth = null, $maxHeight = null, $scale = true, $inflate = true)
   {
     $this->maxWidth  = $maxWidth;
     $this->maxHeight = $maxHeight;
@@ -257,33 +257,50 @@ class sfThumbnail
   */
   private function initThumb()
   {
+    if ($this->maxWidth > 0)
+    {
+      $ratioWidth = $this->maxWidth / $this->sourceWidth;
+    }
+    if ($this->maxHeight > 0)
+    {
+      $ratioHeight = $this->maxHeight / $this->sourceHeight;
+    }
+
     if ($this->scale)
     {
-      if ($this->sourceWidth > $this->sourceHeight)
+      if ($this->maxWidth && $this->maxHeight)
       {
-        $this->thumbWidth=$this->maxWidth;
-        $this->thumbHeight=floor($this->sourceHeight*($this->maxWidth/$this->sourceWidth));
+        $ratio = ($ratioWidth < $ratioHeight) ? $ratioWidth : $ratioHeight;
       }
-      else if ($this->sourceWidth < $this->sourceHeight)
+      if ($this->maxWidth xor $this->maxHeight)
       {
-        $this->thumbHeight=$this->maxHeight;
-        $this->thumbWidth=floor($this->sourceWidth*($this->maxHeight/$this->sourceHeight));
+        $ratio = (isset($ratioWidth)) ? $ratioWidth : $ratioHeight;
       }
-      else
+      if ((!$this->maxWidth && !$this->maxHeight) || (!$this->inflate && $ratio > 1))
       {
-        $this->thumbWidth=$this->maxWidth;
-        $this->thumbHeight=$this->maxHeight;
+        $ratio = 1;
       }
+
+      $this->thumbWidth = floor($ratio * $this->sourceWidth);
+      $this->thumbHeight = floor($ratio * $this->sourceHeight);
     }
     else
     {
-      $this->thumbWidth=$this->maxWidth;
-      $this->thumbHeight=$this->maxHeight;
+      if (!$ratioWidth || (!$this->inflate && $ratioWidth > 1))
+      {
+        $ratioWidth = 1;
+      }
+      if (!$ratioHeight || (!$this->inflate && $ratioHeight > 1))
+      {
+        $ratioHeight = 1;
+      }
+      $this->thumbWidth = floor($ratioWidth * $this->sourceWidth);
+      $this->thumbHeight = floor($ratioHeight * $this->sourceHeight);
     }
 
     $this->thumb = imagecreatetruecolor($this->thumbWidth, $this->thumbHeight);
 
-    if ($this->sourceWidth <= $this->maxWidth && $this->sourceHeight <= $this->maxHeight && $this->inflate == false)
+    if ($this->sourceWidth == $this->maxWidth && $this->sourceHeight == $this->maxHeight)
     {
       $this->thumb= $this->source;
     }
