@@ -320,6 +320,31 @@ class sfThumbnail
     $creator = $creatorName !== null ? $this->imgCreators[$creatorName] : $this->imgCreators[$this->imgData['mime']];
     $creator($this->thumb, $thumbDest);
   }
-}
 
-?>
+  public function freeSource()
+  {
+    if (is_resource($this->source))
+    {
+      imagedestroy($this->source);
+    }
+  }
+
+  public function freeThumb()
+  {
+    if (is_resource($this->thumb))
+    {
+      imagedestroy($this->thumb);
+    }
+  }
+
+  public function freeAll()
+  {
+    $this->freeSource();
+    $this->freeThumb();
+  }
+
+  public function __destruct()
+  {
+    $this->freeAll();
+  }
+}
