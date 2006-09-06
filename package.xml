@@ -10,9 +10,9 @@
   <email>fabien.potencier@symfony-project.com</email>
   <active>yes</active>
  </lead>
- <date>2006-08-24</date>
+ <date>2006-09-06</date>
  <version>
-   <release>1.0.4</release>
+   <release>1.1.0</release>
    <api>1.0.0</api>
  </version>
  <stability>
@@ -23,7 +23,12 @@
  <notes>-</notes>
  <contents>
   <dir name="/">
-    <file role="php" baseinstalldir="symfony/plugins/sfThumbnail" install-as="sfThumbnail.class.php" name="lib/sfThumbnail.class.php" />
+    <file role="data" name="README" />
+    <file role="data" name="LICENSE" />
+
+    <dir name="lib">
+      <file role="data" name="sfThumbnail.class.php" />
+    </dir>
   </dir>
  </contents>
 
@@ -38,8 +43,8 @@
    <package>
     <name>symfony</name>
     <channel>pear.symfony-project.com</channel>
-    <min>0.6.0</min>
-    <max>0.8.0</max>
+    <min>0.8.1</min>
+    <max>0.9.99999</max>
    </package>
   </required>
  </dependencies>
