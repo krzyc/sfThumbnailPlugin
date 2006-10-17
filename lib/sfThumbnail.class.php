@@ -132,6 +132,13 @@ class sfThumbnail
   private $imgData;
 
   /**
+   * JPEG output quality
+   * @access private
+   * @var int
+   */
+  private $quality;
+
+  /**
   * Thumbnail constructor
   * @param int (optional) max width of thumbnail
   * @param int (optional) max height of thumbnail
@@ -139,12 +146,13 @@ class sfThumbnail
   * @param boolean (optional) if true inflate small images
   * @access public
   */
-  public function __construct($maxWidth = null, $maxHeight = null, $scale = true, $inflate = true)
+  public function __construct($maxWidth = null, $maxHeight = null, $scale = true, $inflate = true, $quality = 75)
   {
     $this->maxWidth  = $maxWidth;
     $this->maxHeight = $maxHeight;
     $this->scale     = $scale;
     $this->inflate   = $inflate;
+    $this->quality   = $quality;
 
     $this->imgTypes = array('image/jpeg', 'image/png', 'image/gif');
     $this->imgLoaders = array(
@@ -318,7 +326,14 @@ class sfThumbnail
   public function save($thumbDest, $creatorName = null)
   {
     $creator = $creatorName !== null ? $this->imgCreators[$creatorName] : $this->imgCreators[$this->imgData['mime']];
-    $creator($this->thumb, $thumbDest);
+    if ($creator == 'imagejpeg')
+    {
+      imagejpeg($this->thumb, $thumbDest, $this->quality);
+    }
+    else
+    {
+      $creator($this->thumb, $thumbDest);
+    }
   }
 
   public function freeSource()
