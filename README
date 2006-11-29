@@ -1,13 +1,19 @@
-sfThumbnailPlugin symfony plugin
-================================
+= sfThumbnailPlugin plugin =
 
-Overview
---------
+The `sfThumbnailPlugin` creates thumbnails.
 
-sfThumbnail class.
+== Installation ==
 
-License
--------
+  * Install the plugin
+  
+  {{{
+    symfony plugin-install http://plugins.symfony-project.com/sfThumbnailPlugin
+  }}}
 
-For the full copyright and license information, please view the LICENSE
-file that was distributed with this source code.
+  * Clear you cache
+
+  {{{
+    symfony cc
+  }}}
+
+  * You're done.
