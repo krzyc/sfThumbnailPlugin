@@ -210,7 +210,7 @@ class sfThumbnail
   * @access public
   * @throws Exception
   */
-  function loadData ($image, $mime)
+  function loadData($image, $mime)
   {
     if (in_array($mime,$this->imgTypes))
     {
@@ -310,7 +310,7 @@ class sfThumbnail
 
     if ($this->sourceWidth == $this->maxWidth && $this->sourceHeight == $this->maxHeight)
     {
-      $this->thumb= $this->source;
+      $this->thumb = $this->source;
     }
     else
     {
