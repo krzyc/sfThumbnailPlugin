@@ -140,11 +140,11 @@ class sfThumbnail
 
   /**
   * Thumbnail constructor
+  *
   * @param int (optional) max width of thumbnail
   * @param int (optional) max height of thumbnail
   * @param boolean (optional) if true image scales
   * @param boolean (optional) if true inflate small images
-  * @access public
   */
   public function __construct($maxWidth = null, $maxHeight = null, $scale = true, $inflate = true, $quality = 75)
   {
@@ -169,11 +169,13 @@ class sfThumbnail
   }
 
   /**
-  * Loads an image from a file
-  * @param string filename (with path) of image
-  * @return boolean
+  * Loads an image from a file and creates an internal thumbnail out of it
+  *
+  * @param string filename (with absolute path) of the image to load
+  *
+  * @return boolean True if the image was properly loaded
   * @access public
-  * @throws Exception
+  * @throws Exception If the GD extension is not available, if the image cannot be loaded, or if its mime type is not supported
   */
   public function loadFile($image)
   {
@@ -181,13 +183,18 @@ class sfThumbnail
 
     if (!$imgData)
     {
-      throw new Exception("Could not load image $image");
+      throw new Exception(sprintf('Could not load image %s', $image));
     }
 
     if (in_array($imgData['mime'], $this->imgTypes))
     {
       $loader = $this->imgLoaders[$imgData['mime']];
-      $this->source = $loader($image);
+      if(!function_exists($loader))
+      {
+        throw new Exception(sprintf('Function %s not available. Please enable the GD extension.', $loader));
+      }
+      
+      $this->source = $loader($image);      
       $this->sourceWidth = $imgData[0];
       $this->sourceHeight = $imgData[1];
       $this->sourceMime = $imgData['mime'];
@@ -198,19 +205,21 @@ class sfThumbnail
     }
     else
     {
-      throw new Exception('Image MIME type '.$imgData['mime'].' not supported');
+      throw new Exception(sprintf('Image MIME type %s not supported', $imgData['mime']));
     }
   }
 
   /**
-  * Loads an image from a string (e.g. database)
-  * @param string the image
-  * @param mime mime type of the image
-  * @return boolean
+  * Loads an image from a string (e.g. database) and creates an internal thumbnail out of it
+  *
+  * @param string the image string (must be a format accepted by imagecreatefromstring())
+  * @param string mime type of the image
+  *
+  * @return boolean True if the image was properly loaded
   * @access public
-  * @throws Exception
+  * @throws Exception If image mime type is not supported
   */
-  function loadData($image, $mime)
+  public function loadData($image, $mime)
   {
     if (in_array($mime,$this->imgTypes))
     {
@@ -224,7 +233,7 @@ class sfThumbnail
     }
     else
     {
-      throw new Exception('Image MIME type '.$mime.' not supported');
+      throw new Exception(sprintf('Image MIME type %s not supported', $mime));
     }
   }
 
@@ -233,7 +242,7 @@ class sfThumbnail
   * @return string
   * @access public
   */
-  function getMime()
+  public function getMime()
   {
     return $this->sourceMime;
   }
@@ -243,7 +252,7 @@ class sfThumbnail
   * @return int
   * @access public
   */
-  function getThumbWidth()
+  public function getThumbWidth()
   {
     return $this->thumbWidth;
   }
@@ -253,13 +262,14 @@ class sfThumbnail
   * @return int
   * @access public
   */
-  function getThumbHeight()
+  public function getThumbHeight()
   {
     return $this->thumbHeight;
   }
 
   /**
-  * Creates the thumbnail
+  * Creates the thumbnail image from the source and stores it in the object
+  *
   * @return void
   * @access private
   */
@@ -320,12 +330,25 @@ class sfThumbnail
 
   /**
   * Saves the thumbnail to the filesystem
+  * If no target mime type is specified, the thumbnail is created with the same mime type as the source file.
+  *
+  * @param string the image thumbnail file destination (with absolute path)
+  * @param string The mime-type of the thumbnail (possible values are 'image/jpeg', 'image/png', and 'image/gif')
+  *
   * @access public 
   * @return void
   */
-  public function save($thumbDest, $creatorName = null)
+  public function save($thumbDest, $targetMime = null)
   {
-    $creator = $creatorName !== null ? $this->imgCreators[$creatorName] : $this->imgCreators[$this->imgData['mime']];
+    if($targetMime !== null)
+    {
+      $creator = $this->imgCreators[$targetMime];
+    }
+    else
+    {
+      $creator = $this->imgCreators[$this->sourceMime];
+    }
+    
     if ($creator == 'imagejpeg')
     {
       imagejpeg($this->thumb, $thumbDest, $this->quality);
