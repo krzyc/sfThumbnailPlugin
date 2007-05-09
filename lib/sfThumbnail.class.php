@@ -174,11 +174,11 @@ class sfThumbnail
     }
     else
     {
-      if (!$ratioWidth || (!$inflate && $ratioWidth > 1))
+      if (!isset($ratioWidth) || (!$inflate && $ratioWidth > 1))
       {
         $ratioWidth = 1;
       }
-      if (!$ratioHeight || (!$inflate && $ratioHeight > 1))
+      if (!isset($ratioHeight) || (!$inflate && $ratioHeight > 1))
       {
         $ratioHeight = 1;
       }
