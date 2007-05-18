@@ -10,9 +10,9 @@
   <email>fabien.potencier@symfony-project.com</email>
   <active>yes</active>
  </lead>
- <date>2006-11-29</date>
+ <date>2007-05-18</date>
  <version>
-   <release>1.2.0</release>
+   <release>1.3.0</release>
    <api>1.0.0</api>
  </version>
  <stability>
@@ -28,6 +28,8 @@
 
     <dir name="lib">
       <file role="data" name="sfThumbnail.class.php" />
+      <file role="data" name="sfGDAdapter.class.php" />
+      <file role="data" name="sfImageMagickAdapter.class.php" />
     </dir>
   </dir>
  </contents>

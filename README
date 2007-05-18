@@ -22,8 +22,6 @@ You're done.
 
 '''Note''': To use !ImageMagick, you'll need to download and install the binaries from http://www.imagemagick.org.
 
-Lastly, all adapter-related options are '''only available in svn at this time'''. They are not available through PEAR or on this wiki.
-
 == Contents ==
 
 The plugin contains three classes, `sfThumbnail`, `sfGDAdapter` and `sfImageMagickAdapter`. Available methods are:
@@ -57,7 +55,7 @@ The process of creating a thumbnail from an existing image file is pretty straig
 First, you must initialize a new `sfThumbnail` object with two parameters: the maximum width and height of the desired thumbnail.
 
 {{{
-// Initialize the object for 150x150px thumbnails
+// Initialize the object for 150x150 thumbnails
 $thumbnail = new sfThumbnail(150, 150);
 }}}
 
@@ -125,12 +123,14 @@ $thumbnail = new sfThumbnail(150, 150, true, true, 75, 'sfImageMagickAdapter', a
 If for some reason you use a non-standard name for your !ImageMagick binary, you can specify it like so:
 
 {{{
-$thumbnail = new sfThumbnail(150, 150, true, true, 75, 'sfImageMagickAdapter', array('binary' => 'my_imagemagick_binary'));
+$thumbnail = new sfThumbnail(150, 150, true, true, 75, 'sfImageMagickAdapter', array('convert' => 'my_imagemagick_binary'));
 }}}
 
 == Changelog ==
 
 === Trunk ===
+
+=== 2007-05-18 | 1.3.0 Stable ===
 
  * bmeynell: Updated README
  * bmeynell: Fixed ticket (#1710)
