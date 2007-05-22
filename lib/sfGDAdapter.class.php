@@ -122,12 +122,21 @@ class sfGDAdapter
   {
     if (in_array($mime,$this->imgTypes))
     {
-      $thumbnail->setSource(imagecreatefromstring($image));
       $this->source = imagecreatefromstring($image);
       $this->sourceWidth = imagesx($this->source);
       $this->sourceHeight = imagesy($this->source);
       $this->sourceMime = $mime;
       $thumbnail->initThumb($this->sourceWidth, $this->sourceHeight, $this->maxWidth, $this->maxHeight, $this->scale, $this->inflate);
+
+      $this->thumb = imagecreatetruecolor($thumbnail->getThumbWidth(), $thumbnail->getThumbHeight());
+      if ($this->sourceWidth == $this->maxWidth && $this->sourceHeight == $this->maxHeight)
+      {
+        $this->thumb = $this->source;
+      }
+      else
+      {
+        imagecopyresampled($this->thumb, $this->source, 0, 0, 0, 0, $thumbnail->getThumbWidth(), $thumbnail->getThumbHeight(), $this->sourceWidth, $this->sourceHeight);
+      }
 
       return true;
     }

@@ -9,12 +9,13 @@ require_once(dirname(__FILE__).'/../../lib/sfImageMagickAdapter.class.php');
 // and [http://www.imagemagick.org ImageMagick] installed
 $adapters = array('sfGDAdapter', 'sfImageMagickAdapter');
 
-$tests_generic = 30;
+$tests_generic = 31;
 $tests_imagemagick = 3;
+$tests_gd = 3;
 
 $data = array(
   'invalid'      => dirname(__FILE__).'/../data/invalid.txt',
-  'as_string'    => dirname(__FILE__).'/../data/data.txt',
+  'blob'         => dirname(__FILE__).'/../data/image.blob',
   'image/jpeg'   => dirname(__FILE__).'/../data/einstein.jpg',
   //'image/pjpeg'  => dirname(__FILE__).'/../data/pjpeg.jpg',
   'image/png'    => dirname(__FILE__).'/../data/gnome.png',
@@ -95,13 +96,7 @@ $t->todo('loadFile() throws an exception when an invalid file is loaded');
   $thmb->save($result.'.gif');
   checkResult($t, 200, 200, 'image/gif');
 
-  $t->todo('creates image from string');
-  //$t->diag('creates image from data string');
-  //$thmb = new sfThumbnail(200, 200, false, true, 75, $adapter, array());
-  //$thmb->loadData($data['as_string'], 'image/gif');
-  //$thmb->save($result.'.gif');
-  //checkResult($t, 200, 200, 'image/gif');
-
+  // imagemagick-specific tests
   if ($adapter == 'sfImageMagickAdapter')
   {
     $t = new my_lime_test($tests_imagemagick, new lime_output_color());
@@ -111,6 +106,17 @@ $t->todo('loadFile() throws an exception when an invalid file is loaded');
     $thmb->loadFile($data['document/pdf']);
     $thmb->save($result.'.jpg');
     checkResult($t, 150, 116, 'image/jpeg');
+  }
+
+  // gd specific tests (imagemagick does not currently support loadData())
+  if ($adapter == 'sfGDAdapter')
+  {
+    $t->diag('creates image from string');
+    $thmb = new sfThumbnail(200, 200, false, true, 75, $adapter, array());
+    $blob = file_get_contents($data['blob']);
+    $thmb->loadData($blob, 'image/jpeg');
+    $thmb->save($result.'.jpg', 'image/jpeg');
+    checkResult($t, 200, 200, 'image/jpeg');
   }
 }
 
