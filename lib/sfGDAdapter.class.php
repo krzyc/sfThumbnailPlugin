@@ -103,7 +103,7 @@ class sfGDAdapter
       $this->thumb = imagecreatetruecolor($thumbnail->getThumbWidth(), $thumbnail->getThumbHeight());
       if ($imgData[0] == $this->maxWidth && $imgData[1] == $this->maxHeight)
       {
-        $this->thumb = $image;
+        $this->thumb = $this->source;
       }
       else
       {
