@@ -167,6 +167,26 @@ class sfGDAdapter
     }
   }
 
+  public function toString($thumbnail, $targetMime = null)
+  {
+    if($targetMime !== null)
+    {
+      $creator = $this->imgCreators[$targetMime];
+    }
+    else
+    {
+      $creator = $this->imgCreators[$thumbnail->getMime()];
+    }
+
+    ob_start();
+    $creator($this->thumb);
+    $image_data = ob_get_contents();
+    ob_end_clean();
+    return $image_data;
+  }
+
+  
+
   public function freeSource()
   {
     if (is_resource($this->source))

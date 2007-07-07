@@ -99,6 +99,23 @@ class sfThumbnail
     $this->adapter->save($this, $thumbDest, $targetMime);
   }
 
+  /**
+   * Returns the thumbnail as a string
+   * If no target mime type is specified, the thumbnail is created with the same mime type as the source file.
+   *
+   * This works only for the GD Adapter
+   *
+   * @param string The mime-type of the thumbnail (possible values are 'image/jpeg', 'image/png', and 'image/gif')
+   *
+   * @access public
+   * @return string
+   */
+  public function toString($thumbDest, $targetMime = null)
+  {
+    return $this->adapter->toString($this, $targetMime);
+  }
+
+
   public function freeSource()
   {
     $this->adapter->freeSource();
