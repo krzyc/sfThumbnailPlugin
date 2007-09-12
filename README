@@ -129,9 +129,11 @@ $thumbnail = new sfThumbnail(150, 150, true, true, 75, 'sfImageMagickAdapter', a
 == Changelog ==
 
 === Trunk ===
- 
+
+=== 2007-12-09 | 1.4.0 Stable ===
+
  * davedash: Added toString($mime) function to save file to a string
- 
+
 === 2007-05-18 | 1.3.0 Stable ===
 
  * bmeynell: Updated README
