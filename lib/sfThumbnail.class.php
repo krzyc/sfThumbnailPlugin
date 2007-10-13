@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) 2004-2007 Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -11,7 +11,7 @@
 /**
  * sfThumbnail provides a mechanism for creating thumbnail images.
  *
- * This is taken from Harry Fueck's Thumbnail class and 
+ * This is taken from Harry Fueck's Thumbnail class and
  * converted for PHP5 strict compliance for use with symfony.
  *
  * @package    sfThumbnailPlugin
@@ -29,6 +29,11 @@ class sfThumbnail
    * Height of thumbnail in pixels
    */
   protected $thumbHeight;
+
+  /**
+   * Temporary file if the source is not local
+   */
+  protected $tempFile = null;
 
   /**
    * Thumbnail constructor
@@ -66,6 +71,40 @@ class sfThumbnail
    */
   public function loadFile($image)
   {
+    if (eregi('http(s)?://', $image))
+    {
+      if (class_exists('sfWebBrowser'))
+      {
+        if (!is_null($this->tempFile)) {
+          unlink($this->tempFile);
+        }
+        $this->tempFile = tempnam('/tmp', 'sfThumbnailPlugin');
+
+        $b = new sfWebBrowser();
+        try
+        {
+          $b->get($image);
+          if ($b->getResponseCode() != 200) {
+            throw new Exception(sprintf('%s returned error code %s', $image, $b->getResponseCode()));
+          }
+          file_put_contents($this->tempFile, $b->getResponseText());
+          if (!filesize($this->tempFile)) {
+            throw new Exception('downloaded file is empty');
+          } else {
+            $image = $this->tempFile;
+          }
+        }
+        catch (Exception $e)
+        {
+          throw new Exception("Source image is a URL but it cannot be used because ". $e->getMessage());
+        }
+      }
+      else
+      {
+        throw new Exception("Source image is a URL but sfWebBrowserPlugin is not installed");
+      }
+    }
+
     $this->adapter->loadFile($this, $image);
   }
 
@@ -103,21 +142,22 @@ class sfThumbnail
    * Returns the thumbnail as a string
    * If no target mime type is specified, the thumbnail is created with the same mime type as the source file.
    *
-   * This works only for the GD Adapter
    *
-   * @param string The mime-type of the thumbnail (possible values are 'image/jpeg', 'image/png', and 'image/gif')
+   * @param string The mime-type of the thumbnail (possible values are adapter dependent)
    *
    * @access public
    * @return string
    */
-  public function toString($thumbDest, $targetMime = null)
+  public function toString($targetMime = null)
   {
     return $this->adapter->toString($this, $targetMime);
   }
 
-
   public function freeSource()
   {
+    if (!is_null($this->tempFile)) {
+      unlink($this->tempFile);
+    }
     $this->adapter->freeSource();
   }
 

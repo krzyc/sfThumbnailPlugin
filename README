@@ -126,11 +126,29 @@ If for some reason you use a non-standard name for your !ImageMagick binary, you
 $thumbnail = new sfThumbnail(150, 150, true, true, 75, 'sfImageMagickAdapter', array('convert' => 'my_imagemagick_binary'));
 }}}
 
+By default sfThumbnail resizes the image in order to get to the desired width and height of the thumbnail. But what if you want to force the thumbnail to be a certain width and height but without distorting the image of the source size scale is different than the thumbnail size scale
+Now you can use a custom option "method" to achieve just that but "shaving" the source image in order to get it to be the same scale as the thumbnail and them resize it to the required dimentions.
+When "shave_bottom" is used and the image’s width is greater than the height then sfThumbnail shaves from both left side and right side until the desired scale.
+There is one requirement for the "method" option to work as expected and it is to turn off scaling (set the third parameter of sfThumbnail to FALSE)
+
+{{{
+$thumbnail = new sfThumbnail(150, 150, false, true, 75, 'sfImageMagickAdapter', array('method' => 'shave_all'));
+
+$thumbnail->loadFile('http://www.walkerbooks.co.uk/assets_walker/dynamic/1172005677146.png');
+$thumbnail->save('/tmp/shave.png', 'image/png'); 
+}}}
+
 == Changelog ==
 
 === Trunk ===
 
-=== 2007-12-09 | 1.4.0 Stable ===
+=== 2007-09-15 | 1.5.0 Stable ===
+
+ * kupokomapa: toString($mime) method now works for both adapters
+ * kupokomapa: loadFile() method can now accept a URI if sfWebBrowserPluging is available
+ * kupokomapa: Implemented "method" option for sfImageMagickAdapter where "method" for now can be "shave_all" or "shave_bottom"
+
+=== 2007-09-12 | 1.4.0 Stable ===
 
  * davedash: Added toString($mime) function to save file to a string
 

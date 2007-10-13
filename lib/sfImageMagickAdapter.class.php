@@ -3,7 +3,7 @@
 /*
  * This file is part of the symfony package.
  * (c) 2004-2007 Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -161,6 +161,14 @@ class sfImageMagickAdapter
     $this->options = $options;
   }
 
+  public function toString($thumbnail, $targetMime = null)
+  {
+    ob_start();
+    $this->save($thumbnail, null, $targetMime);
+
+    return ob_get_clean();
+  }
+
   public function loadFile($thumbnail, $image)
   {
     // try and use getimagesize()
@@ -210,7 +218,67 @@ class sfImageMagickAdapter
 
   public function save($thumbnail, $thumbDest, $targetMime = null)
   {
-    $command = ' -thumbnail ';
+    $command = '';
+
+    $width  = $this->sourceWidth;
+    $height = $this->sourceHeight;
+    $x = $y = 0;
+    switch (@$this->options['method']) {
+      case "shave_all":
+        if ($width > $height)
+        {
+          $x = ceil(($width - $height) / 2 );
+          $width = $height;
+        }
+        elseif ($height > $width)
+        {
+          $y = ceil(($height - $width) / 2);
+          $height = $width;
+        }
+
+        $command = sprintf(" -shave %dx%d", $x, $y);
+        break;
+      case "shave_bottom":
+        if ($width > $height)
+        {
+          $x = ceil(($width - $height) / 2 );
+          $width = $height;
+        }
+        elseif ($height > $width)
+        {
+          $y = 0;
+          $height = $width;
+        }
+
+        if (is_null($thumbDest))
+        {
+          $command = sprintf(
+            " -crop %dx%d+%d+%d %s '-' | %s",
+            $width, $height,
+            $x, $y,
+            escapeshellarg($this->image),
+            $this->magickCommands['convert']
+          );
+
+          $this->image = '-';
+        }
+        else
+        {
+          $command = sprintf(
+            " -crop %dx%d+%d+%d %s %s && %s",
+            $width, $height,
+            $x, $y,
+            escapeshellarg($this->image), escapeshellarg($thumbDest),
+            $this->magickCommands['convert']
+          );
+
+          $this->image = $thumbDest;
+        }
+
+        break;
+    } // end switch
+
+    $command .= ' -thumbnail ';
     $command .= $thumbnail->getThumbWidth().'x'.$thumbnail->getThumbHeight();
 
     // absolute sizing
@@ -235,7 +303,12 @@ class sfImageMagickAdapter
       $extract = '['.escapeshellarg($this->options['extract']).'] ';
     }
 
-    exec($this->magickCommands['convert'].' '.$command.' '.escapeshellarg($this->image).$extract.' '.escapeshellarg($thumbDest));
+    $output = (is_null($thumbDest))?'-':$thumbDest;
+    $output = (($mime = array_search($targetMime, $this->mimeMap))?$mime.':':'').$output;
+
+    $cmd = $this->magickCommands['convert'].' '.$command.' '.escapeshellarg($this->image).$extract.' '.escapeshellarg($output);
+
+    (is_null($thumbDest))?passthru($cmd):exec($cmd);
   }
 
   public function freeSource()
