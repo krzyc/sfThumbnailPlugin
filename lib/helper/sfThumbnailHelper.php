@@ -47,15 +47,17 @@ function thumbnail_path($source, $width, $height, $absolute = false)
 
 /**
  * Get the <img> tag to include a thumbnail into your web page
+ * Options are the same than the ones used in image_tag()
  *
  * @param string $source
  * @param int $width
  * @param int $height
- * @param mixed $options
+ * @param mixed $options 
  * @return string
  */
 function thumbnail_tag($source, $width, $height, $options = array())
 {
-	$img_src = thumbnail_path($source, $width, $height, false);
+	$img_src = thumbnail_path($source, $width, $height);
+
 	return image_tag($img_src, $options);
 }

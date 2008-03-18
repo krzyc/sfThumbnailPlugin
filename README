@@ -100,6 +100,49 @@ public function executeUpload()
 
 Don't forget to create the `uploads/thumbnail/` directory before calling the action. 
 
+=== Create thumbnails "on the fly" using sfThumbnailHelper ===
+
+You can generate your thumbnails on demand, using the included helpers.
+
+{{{
+// Include the helper
+<?php use_helper('sfThumbnail') ?>
+}}}
+
+Two helpers are provided, very similar to image_* helpers :
+
+{{{
+// Returns path to the generated thumbnail
+thumbnail_path($source_image, $thumbnail_width, $thumbnail_height, $absolute = false)
+
+// Returns the <img> tag to display the generated thumbnail
+thumbnail_tag($source_image, $thumbnail_width, $thumbnail_height, $options = array())
+}}}
+
+These helpers are very simplistic, and for the moment do not handle advanced options
+that could be passed to sfThumbnail constructor. It just allows you to replace your
+image_tag() and image_path() calls with thumbnail_*() calls, just adding the wished
+size.
+
+The thumbnail is generated only if the destination file does not exist or if the source
+is newer than the destination.
+
+The thumbnails are saved into a given directory, with the same structure than the source
+file. Default directory is "uploads/thumbnails".
+
+{{{
+thumbnail_tag('path/to/myImage.jpg', 100, 100)
+// Will generate /uploads/thumbnails/path/to/myImage_100x100.jpg
+}}}
+
+The directory can be defined in your app.yml file, without any trailing slash.
+
+{{{
+all:
+  sfThumbnail:
+    thumbnails_dir: uploads/thumbnails
+}}}
+
 == !ImageMagick-Specific Usage ==
 
 Usage is the same as above except you need to explicitly call the sfImageMagickAdapter class.
