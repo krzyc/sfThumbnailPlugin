@@ -287,7 +287,7 @@ class sfImageMagickAdapter
       $command .= '!';
     }
 
-    if ($this->quality && $thumbnail->getMime() == 'image/jpeg')
+    if ($this->quality && $targetMime == 'image/jpeg')
     {
       $command .= ' -quality '.$this->quality.'% ';
     }
