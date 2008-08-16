@@ -142,6 +142,8 @@ $thumbnail->save('/tmp/shave.png', 'image/png');
 
 === Trunk ===
 
+ * fabien: added a toResource() method to get the image resource for the thumbnail
+
 === 2007-09-15 | 1.5.0 Stable ===
 
  * kupokomapa: toString($mime) method now works for both adapters

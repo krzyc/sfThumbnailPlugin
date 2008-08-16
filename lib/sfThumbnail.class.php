@@ -161,6 +161,11 @@ class sfThumbnail
     return $this->adapter->toString($this, $targetMime);
   }
 
+  public function toResource()
+  {
+    return $this->adapter->toResource($this);
+  }
+
   public function freeSource()
   {
     if (!is_null($this->tempFile)) {
