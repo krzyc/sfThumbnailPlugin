@@ -169,6 +169,11 @@ class sfImageMagickAdapter
     return ob_get_clean();
   }
 
+  public function toResource()
+  {
+    throw new Exception('The ImageMagick adapter does not support the toResource method.');
+  }
+
   public function loadFile($thumbnail, $image)
   {
     // try and use getimagesize()
@@ -331,7 +336,7 @@ class sfImageMagickAdapter
       $command .= '!';
     }
 
-    if ($this->quality && $thumbnail->getMime() == 'image/jpeg')
+    if ($this->quality && $targetMime == 'image/jpeg')
     {
       $command .= ' -quality '.$this->quality.'% ';
     }
