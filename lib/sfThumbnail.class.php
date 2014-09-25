@@ -30,6 +30,9 @@ class sfThumbnail
    */
   protected $thumbHeight;
 
+  protected $maxWidth;
+  protected $maxHeight;
+
   /**
    * Temporary file if the source is not local
    */
@@ -71,7 +74,7 @@ class sfThumbnail
    */
   public function loadFile($image)
   {
-    if (preg_match('#http(s)?\://#', $image))
+    if (preg_match('|https?://|i', $image))
     {
       if (class_exists('sfWebBrowser'))
       {
@@ -201,6 +204,15 @@ class sfThumbnail
     return $this->thumbHeight;
   }
 
+  public function getMaxWidth()
+  {
+    return $this->maxWidth;
+  }
+  public function getMaxHeight()
+  {
+    return $this->maxHeight;
+  }
+
   /**
    * Returns the mime type of the source image
    */
@@ -215,6 +227,9 @@ class sfThumbnail
    */
   public function initThumb($sourceWidth, $sourceHeight, $maxWidth, $maxHeight, $scale, $inflate)
   {
+    $this->maxWidth  = $maxWidth;
+    $this->maxHeight = $maxHeight;
+    
     if ($maxWidth > 0)
     {
       $ratioWidth = $maxWidth / $sourceWidth;
@@ -239,8 +254,8 @@ class sfThumbnail
         $ratio = 1;
       }
 
-      $this->thumbWidth = floor($ratio * $sourceWidth);
-      $this->thumbHeight = ceil($ratio * $sourceHeight);
+      $this->thumbWidth  = ($ratio == $ratioWidth  ? $maxWidth : floor($ratio * $sourceWidth));
+      $this->thumbHeight = ($ratio == $ratioHeight ? $maxHeight : ceil($ratio * $sourceHeight));
     }
     else
     {
@@ -252,8 +267,8 @@ class sfThumbnail
       {
         $ratioHeight = 1;
       }
-      $this->thumbWidth = floor($ratioWidth * $sourceWidth);
-      $this->thumbHeight = ceil($ratioHeight * $sourceHeight);
+      $this->thumbWidth  = ($ratio == $ratioWidth  ? $maxWidth : floor($ratio * $sourceWidth));
+      $this->thumbHeight = ($ratio == $ratioHeight ? $maxHeight : ceil($ratio * $sourceHeight));
     }
   }
 

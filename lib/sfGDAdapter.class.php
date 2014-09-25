@@ -100,16 +100,29 @@ class sfGDAdapter
       $this->sourceMime = $imgData['mime'];
       $thumbnail->initThumb($this->sourceWidth, $this->sourceHeight, $this->maxWidth, $this->maxHeight, $this->scale, $this->inflate);
 
-      $this->thumb = imagecreatetruecolor($thumbnail->getThumbWidth(), $thumbnail->getThumbHeight());
-      if ($imgData[0] == $this->maxWidth && $imgData[1] == $this->maxHeight)
+      if (isset($this->options['filltofit']) && $this->options['filltofit'])
       {
-        $this->thumb = $this->source;
+        $this->thumb = imagecreatetruecolor($thumbnail->getMaxWidth(), $thumbnail->getMaxHeight());
+        if ($imgData[0] == $this->maxWidth && $imgData[1] == $this->maxHeight)
+        {
+          $this->thumb = $this->source;
+          return true;
+        }
+        list($r, $g, $b) = str_split($this->options['filltofit'], 2);
+        $c = imagecolorallocate($this->thumb, hexdec($r), hexdec($g), hexdec($b));
+        imagefill($this->thumb, 0, 0, $c);
+        imagecopyresampled($this->thumb, $this->source, ($thumbnail->getMaxWidth()-$thumbnail->getThumbWidth())/2, ($thumbnail->getMaxHeight()-$thumbnail->getThumbHeight())/2, 0, 0, $thumbnail->getThumbWidth(), $thumbnail->getThumbHeight(), $imgData[0], $imgData[1]);
       }
       else
       {
+        $this->thumb = imagecreatetruecolor($thumbnail->getThumbWidth(), $thumbnail->getThumbHeight());
+        if ($imgData[0] == $this->maxWidth && $imgData[1] == $this->maxHeight)
+        {
+          $this->thumb = $this->source;
+          return true;
+        }
         imagecopyresampled($this->thumb, $this->source, 0, 0, 0, 0, $thumbnail->getThumbWidth(), $thumbnail->getThumbHeight(), $imgData[0], $imgData[1]);
       }
-
       return true;
     }
     else
@@ -179,7 +192,14 @@ class sfGDAdapter
     }
 
     ob_start();
-    $creator($this->thumb);
+    if ($creator == 'imagejpeg')
+    {
+      $creator($this->thumb, NULL, $this->quality);
+    }
+    else
+    {
+      $creator($this->thumb);
+    }
 
     return ob_get_clean();
   }
