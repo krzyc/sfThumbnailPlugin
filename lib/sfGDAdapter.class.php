@@ -116,6 +116,10 @@ class sfGDAdapter
       else
       {
         $this->thumb = imagecreatetruecolor($thumbnail->getThumbWidth(), $thumbnail->getThumbHeight());
+        imagealphablending($this->thumb, false);
+        imagesavealpha($this->thumb, true);
+        $transparent = imagecolorallocatealpha($this->thumb, 255, 255, 255, 127);
+        imagefilledrectangle($this->thumb, 0, 0, $thumbnail->getMaxWidth(), $thumbnail->getMaxHeight(), $transparent);
         if ($imgData[0] == $this->maxWidth && $imgData[1] == $this->maxHeight)
         {
           $this->thumb = $this->source;
